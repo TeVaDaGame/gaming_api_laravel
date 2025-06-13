@@ -1,6 +1,17 @@
-# Gaming API Documentation
+# Gaming API
 
-A RESTful API for managing video games, developers, publishers, and reviews built with Laravel.
+A comprehensive RESTful API built with Laravel for managing video game data including games, developers, publishers, genres, platforms, and user reviews. This API provides endpoints for CRUD operations, search functionality, and relationship management between gaming entities.
+
+## Features
+
+- **Game Management**: Create, read, update, and delete games with detailed information
+- **Developer & Publisher Management**: Track game studios and publishing companies
+- **Genre & Platform Support**: Organize games by categories and supported platforms
+- **User Reviews & Ratings**: Allow users to rate and review games
+- **Search Functionality**: Search across games, developers, and publishers
+- **Popular & Latest Games**: Get trending and recently released games
+- **Authentication**: Secure API access using Laravel Sanctum
+- **Database Relationships**: Many-to-many relationships between games, developers, genres, and platforms
 
 ## Table of Contents
 - [Setup](#setup)
@@ -16,22 +27,94 @@ A RESTful API for managing video games, developers, publishers, and reviews buil
 - [Database Schema](#database-schema)
 - [License](#license)
 
-## Setup
+## Project Setup
 
-1. Clone the repository
-2. Run `composer install`
-3. Copy `.env.example` to `.env` and configure database
-4. Run migrations and seed data:
-```bash
-php artisan migrate
-php artisan db:seed
+### Prerequisites
+- PHP 8.1 or higher
+- Composer
+- MySQL or PostgreSQL database
+- Laravel 11.x
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd gaming_api
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Environment configuration**
+   ```bash
+   cp .env.example .env
+   ```
+   Update the `.env` file with your database credentials:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=gaming_api
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
+
+4. **Generate application key**
+   ```bash
+   php artisan key:generate
+   ```
+
+5. **Run database migrations and seeders**
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+6. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+
+The API will be available at `http://localhost:8000`
+
+## API Overview
+
+The Gaming API provides a comprehensive set of endpoints for managing video game data. All API endpoints are prefixed with `/api` and return JSON responses.
+
+### Base URL
+```
+http://localhost:8000/api
+```
+
+### Response Format
+All successful responses follow this structure:
+```json
+{
+    "data": [...],      // For list endpoints
+    "message": "...",   // For action endpoints
+    "meta": {...}       // Pagination info (when applicable)
+}
+```
+
+### Error Handling
+Error responses include appropriate HTTP status codes and error details:
+```json
+{
+    "message": "Error description",
+    "errors": {
+        "field": ["Validation error message"]
+    }
+}
 ```
 
 ## API Endpoints
 
-All API endpoints are prefixed with `/api`.
-
 ### Games
+
+The Games endpoints allow you to manage video game data, including CRUD operations, search, and relationship management.
 
 #### List all games
 ```http
@@ -328,6 +411,8 @@ Response:
 
 ### Developers
 
+Manage game development studios and their information.
+
 #### List all developers
 ```http
 GET /api/developers
@@ -483,6 +568,8 @@ Response:
 
 ### Publishers
 
+Manage game publishing companies and their portfolio.
+
 #### List all publishers
 ```http
 GET /api/publishers
@@ -635,6 +722,8 @@ Response:
 
 ### Genres
 
+Organize and categorize games by genre types.
+
 #### List all genres
 ```http
 GET /api/genres
@@ -752,6 +841,8 @@ Response:
 ```
 
 ### Platforms
+
+Manage gaming platforms and console information.
 
 #### List all platforms
 ```http
@@ -879,6 +970,8 @@ Response:
 
 ### Reviews
 
+Handle user reviews and ratings for games.
+
 #### List all reviews
 ```http
 GET /api/reviews
@@ -1005,41 +1098,93 @@ Response:
 }
 ```
 
-## Authentication
+## Authentication & Security
 
-This API uses Laravel Sanctum for authentication. To access protected endpoints:
+This Gaming API uses **Laravel Sanctum** for secure API authentication. Authentication is required for creating, updating, deleting resources, and posting reviews.
 
-1. First, obtain a token:
+### Getting Started with Authentication
+
+#### 1. User Registration
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+Request:
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "password123",
+    "password_confirmation": "password123"
+}
+
+Response:
+{
+    "message": "User registered successfully",
+    "user": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com"
+    },
+    "token": "1|abcdef123456..."
+}
+```
+
+#### 2. User Login
 ```http
 POST /api/auth/login
 Content-Type: application/json
 
 Request:
 {
-    "email": "user@example.com",
-    "password": "password"
+    "email": "john@example.com",
+    "password": "password123"
 }
 
 Response:
 {
+    "message": "Login successful",
+    "user": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com"
+    },
     "token": "1|abcdef123456..."
 }
 ```
 
-2. Include the token in subsequent requests:
+#### 3. Using Authentication Tokens
+
+Include the token in the Authorization header for protected endpoints:
 ```http
-GET /api/protected-endpoint
+GET /api/games
 Authorization: Bearer 1|abcdef123456...
 ```
 
-Protected endpoints require authentication:
-- Creating, updating, and deleting resources
-- Posting reviews
+#### 4. User Logout
+```http
+POST /api/auth/logout
+Authorization: Bearer 1|abcdef123456...
+
+Response:
+{
+    "message": "Logged out successfully"
+}
+```
+
+### Protected Endpoints
+The following operations require authentication:
+- Creating, updating, and deleting games, developers, publishers, genres, and platforms
+- Posting and managing reviews
 - Rating games
+- Accessing user-specific data
 
 ## Database Schema
 
-### Users
+The Gaming API uses a relational database structure with the following main entities and their relationships:
+
+### Core Tables
+
+#### Users Table
 - id (bigint, primary key)
 - name (string)
 - email (string, unique)
@@ -1049,7 +1194,7 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Publishers
+#### Publishers Table
 - id (bigint, primary key)
 - name (string)
 - slug (string, unique)
@@ -1060,7 +1205,7 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Developers
+#### Developers Table
 - id (bigint, primary key)
 - name (string)
 - slug (string, unique)
@@ -1071,7 +1216,7 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Platforms
+#### Platforms Table
 - id (bigint, primary key)
 - name (string)
 - slug (string, unique)
@@ -1080,7 +1225,7 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Genres
+#### Genres Table
 - id (bigint, primary key)
 - name (string)
 - slug (string, unique)
@@ -1088,7 +1233,7 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Games
+#### Games Table
 - id (bigint, primary key)
 - title (string)
 - slug (string, unique)
@@ -1101,7 +1246,7 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Reviews
+#### Reviews Table
 - id (bigint, primary key)
 - user_id (bigint, foreign key)
 - game_id (bigint, foreign key)
@@ -1112,21 +1257,77 @@ Protected endpoints require authentication:
 - created_at (timestamp)
 - updated_at (timestamp)
 
-### Pivot Tables
-- developer_game (developer_id, game_id, role)
-- game_platform (game_id, platform_id, release_date)
-- game_genre (game_id, genre_id)
+### Relationship Tables (Many-to-Many)
 
-## Thunder Client Testing
+#### Developer-Game Pivot Table (developer_game)
+- developer_id (bigint, foreign key to developers.id)
+- game_id (bigint, foreign key to games.id)
+- role (string) - Developer's role in the game (e.g., "Lead Developer", "Co-Developer")
 
-A Thunder Client collection is included in the repository. To use it:
+#### Game-Platform Pivot Table (game_platform)
+- game_id (bigint, foreign key to games.id)
+- platform_id (bigint, foreign key to platforms.id)
+- release_date (date) - Game's release date on specific platform
 
-1. Install Thunder Client extension in VS Code
-2. Import the collection from `thunder-collection_Gaming API.json`
-3. Update the base URL in environment variables if needed
-4. Run the authentication request first to get a token
-5. Other requests will automatically use the token
+#### Game-Genre Pivot Table (game_genre)
+- game_id (bigint, foreign key to games.id)
+- genre_id (bigint, foreign key to genres.id)
 
-## License
+### Database Relationships
+- **Users** → **Reviews** (One-to-Many): A user can write multiple reviews
+- **Games** → **Reviews** (One-to-Many): A game can have multiple reviews
+- **Publishers** → **Games** (One-to-Many): A publisher can publish multiple games
+- **Games** ↔ **Developers** (Many-to-Many): Games can have multiple developers, developers can work on multiple games
+- **Games** ↔ **Platforms** (Many-to-Many): Games can be on multiple platforms, platforms can have multiple games
+- **Games** ↔ **Genres** (Many-to-Many): Games can belong to multiple genres, genres can contain multiple games
 
-This project is open-sourced software licensed under the MIT license.
+## Testing with Thunder Client
+
+This project includes a pre-configured Thunder Client collection for easy API testing in VS Code.
+
+### Setup Instructions
+
+1. **Install Thunder Client Extension**
+   - Open VS Code Extensions panel (`Ctrl+Shift+X`)
+   - Search for "Thunder Client" 
+   - Install the extension by RangaV
+
+2. **Import the Collection**
+   - Open Thunder Client panel in VS Code
+   - Click "Import" button
+   - Select `thunder-collection_Gaming API.json` from the project root
+   - The collection will be loaded with all endpoints
+
+3. **Configure Environment**
+   - Set the base URL to `http://localhost:8000`
+   - Ensure your Laravel development server is running
+
+4. **Authentication Flow**
+   - First, run the `POST /api/auth/login` request to get a token
+   - The token will be automatically used in subsequent requests
+   - Protected endpoints will work once authenticated
+
+### Available Test Requests
+The collection includes:
+- **Authentication**: Login, register, logout
+- **Games**: CRUD operations, search, popular/latest games
+- **Developers**: CRUD operations and game relationships
+- **Publishers**: CRUD operations and game relationships  
+- **Genres**: CRUD operations and game relationships
+- **Platforms**: CRUD operations and game relationships
+- **Reviews**: CRUD operations and game ratings
+
+### Quick Testing
+1. Start your Laravel server: `php artisan serve`
+2. Run the login request to authenticate
+3. Test any endpoint - authentication is handled automatically
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+### Development Guidelines
+1. Follow PSR-12 coding standards
+2. Write tests for new features
+3. Update documentation for API changes
+4. Use meaningful commit messages
