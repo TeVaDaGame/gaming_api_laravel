@@ -1,0 +1,17 @@
+   .sidebar {
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 76px);
+        }
+        .endpoint-card {
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+        .method-get { border-left-color: #28a745; }
+        .method-post { border-left-color: #007bff; }
+        .method-put { border-left-color: #ffc107; }
+        .method-delete { border-left-color: #dc3545; }
+        .method-badge.bg-get { background-color: #28a745 !important; }
+        .method-badge.bg-post { background-color: #007bff !important; }
+        .method-badge.bg-put { background-color: #ffc107 !important; }
+        .method-badge.bg-delete { background-color: #dc3545 !important; }
+        pre { background-color: #2d3748; border-radius: 8px; }
