@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Publisher;
 use App\Models\Developer;
+use App\Models\Genre;
+use App\Models\Platform;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
@@ -40,7 +42,43 @@ class GameController extends Controller
 
     public function show(Game $game)
     {
-        return response()->json($game->load('publisher', 'developers'));
+        // Load all relationships for comprehensive game information
+        $game->load([
+            'genres',
+            'platforms', 
+            'developers',
+            'publisher',
+            'reviews' => function($query) {
+                $query->with('user')->latest();
+            }
+        ]);
+
+        // Calculate average rating
+        $averageRating = $game->reviews()->avg('rating');
+        $totalReviews = $game->reviews()->count();
+        
+        // Get user's review if they're logged in
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = $game->reviews()->where('user_id', auth()->id())->first();
+        }
+
+        // Get similar games (same genres)
+        $similarGames = Game::whereHas('genres', function($query) use ($game) {
+            $query->whereIn('genre_id', $game->genres->pluck('id'));
+        })
+        ->where('id', '!=', $game->id)
+        ->with(['genres', 'platforms'])
+        ->limit(6)
+        ->get();
+
+        return view('games.show', compact(
+            'game', 
+            'averageRating', 
+            'totalReviews', 
+            'userReview', 
+            'similarGames'
+        ));
     }
 
     public function update(Request $request, Game $game)
@@ -105,6 +143,181 @@ class GameController extends Controller
         $game->save();
 
         return response()->json(['message' => 'Game rated', 'game' => $game]);
+    }
+
+    // Web methods for game management interface
+    public function manage()
+    {
+        $games = Game::with(['publisher', 'developers', 'genres', 'platforms'])
+                    ->paginate(10);
+        
+        return view('games.manage', compact('games'));
+    }
+
+    public function create()
+    {
+        $publishers = Publisher::all();
+        $developers = Developer::all();
+        $genres = Genre::all();
+        $platforms = Platform::all();
+        
+        return view('games.create', compact('publishers', 'developers', 'genres', 'platforms'));
+    }
+
+    public function storeWeb(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|unique:games|max:255',
+            'description' => 'required|string',
+            'release_date' => 'required|date',
+            'publisher_id' => 'required|exists:publishers,id',
+            'rating' => 'required|numeric|between:0,10',
+            'price' => 'required|numeric|min:0',
+            'is_active' => 'boolean',
+            'developer_ids' => 'required|array',
+            'developer_ids.*' => 'exists:developers,id',
+            'genre_ids' => 'array',
+            'genre_ids.*' => 'exists:genres,id',
+            'platform_ids' => 'array',
+            'platform_ids.*' => 'exists:platforms,id'
+        ]);
+
+        $game = Game::create($request->only([
+            'title', 'slug', 'description', 'release_date',
+            'publisher_id', 'rating', 'price', 'is_active'
+        ]));
+
+        if ($request->has('developer_ids')) {
+            $game->developers()->attach($request->developer_ids);
+        }
+
+        if ($request->has('genre_ids')) {
+            $game->genres()->attach($request->genre_ids);
+        }
+
+        if ($request->has('platform_ids')) {
+            $game->platforms()->attach($request->platform_ids);
+        }
+
+        return redirect()->route('games.manage')->with('success', 'Game created successfully!');
+    }
+
+    public function edit(Game $game)
+    {
+        $publishers = Publisher::all();
+        $developers = Developer::all();
+        $genres = Genre::all();
+        $platforms = Platform::all();
+        
+        $game->load(['publisher', 'developers', 'genres', 'platforms']);
+        
+        return view('games.edit', compact('game', 'publishers', 'developers', 'genres', 'platforms'));
+    }
+
+    public function updateWeb(Request $request, Game $game)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:games,slug,' . $game->id,
+            'description' => 'required|string',
+            'release_date' => 'required|date',
+            'publisher_id' => 'required|exists:publishers,id',
+            'rating' => 'required|numeric|between:0,10',
+            'price' => 'required|numeric|min:0',
+            'is_active' => 'boolean',
+            'developer_ids' => 'required|array',
+            'developer_ids.*' => 'exists:developers,id',
+            'genre_ids' => 'array',
+            'genre_ids.*' => 'exists:genres,id',
+            'platform_ids' => 'array',
+            'platform_ids.*' => 'exists:platforms,id'
+        ]);
+
+        $game->update($request->only([
+            'title', 'slug', 'description', 'release_date',
+            'publisher_id', 'rating', 'price', 'is_active'
+        ]));
+
+        if ($request->has('developer_ids')) {
+            $game->developers()->sync($request->developer_ids);
+        }
+
+        if ($request->has('genre_ids')) {
+            $game->genres()->sync($request->genre_ids);
+        }
+
+        if ($request->has('platform_ids')) {
+            $game->platforms()->sync($request->platform_ids);
+        }
+
+        return redirect()->route('games.manage')->with('success', 'Game updated successfully!');
+    }
+
+    public function destroyWeb(Game $game)
+    {
+        $game->delete();
+        return redirect()->route('games.manage')->with('success', 'Game deleted successfully!');
+    }
+
+    // Method for dashboard statistics
+    public function getStats()
+    {
+        return [
+            'total_games' => Game::count(),
+            'total_developers' => Developer::count(),
+            'total_reviews' => \App\Models\Review::count(),
+            'total_publishers' => Publisher::count(),
+        ];
+    }
+
+    public function searchPage(Request $request)
+    {
+        $query = $request->get('q');
+        $genre = $request->get('genre');
+        $publisher = $request->get('publisher');
+        $minRating = $request->get('min_rating');
+        $maxPrice = $request->get('max_price');
+        
+        $games = Game::with(['publisher', 'developers', 'genres', 'platforms']);
+        
+        // Apply search filters
+        if ($query) {
+            $games->where(function($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                  ->orWhere('description', 'like', "%{$query}%");
+            });
+        }
+        
+        if ($genre) {
+            $games->whereHas('genres', function($q) use ($genre) {
+                $q->where('genres.id', $genre);
+            });
+        }
+        
+        if ($publisher) {
+            $games->where('publisher_id', $publisher);
+        }
+        
+        if ($minRating) {
+            $games->where('rating', '>=', $minRating);
+        }
+        
+        if ($maxPrice) {
+            $games->where('price', '<=', $maxPrice);
+        }
+        
+        // Only get active games for search
+        $games->where('is_active', true);
+        
+        // Get results with pagination
+        $results = $games->paginate(12)->appends($request->query());
+        
+        // Get filter options
+        $genres = Genre::orderBy('name')->get();
+        $publishers = Publisher::orderBy('name')->get();
+        
+        return view('games.search', compact('results', 'genres', 'publishers', 'query', 'genre', 'publisher', 'minRating', 'maxPrice'));
     }
 }
 

@@ -46,14 +46,12 @@
                         <a class="nav-link" href="/docs">API Documentation</a>
                     </li>
                 </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
+                <ul class="navbar-nav">                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                        </a>                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ route('settings') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
@@ -92,28 +90,25 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-3 col-md-6">
-                    <div class="card stats-card text-center p-4">
-                        <div class="card-body">
+                    <div class="card stats-card text-center p-4">                        <div class="card-body">
                             <i class="bi bi-joystick text-primary" style="font-size: 3rem;"></i>
-                            <h3 class="mt-3 mb-1">{{ rand(50, 200) }}</h3>
+                            <h3 class="mt-3 mb-1">{{ $stats['total_games'] }}</h3>
                             <p class="text-muted mb-0">Total Games</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="card stats-card text-center p-4">
-                        <div class="card-body">
+                    <div class="card stats-card text-center p-4">                        <div class="card-body">
                             <i class="bi bi-people text-success" style="font-size: 3rem;"></i>
-                            <h3 class="mt-3 mb-1">{{ rand(20, 50) }}</h3>
+                            <h3 class="mt-3 mb-1">{{ $stats['total_developers'] }}</h3>
                             <p class="text-muted mb-0">Developers</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="card stats-card text-center p-4">
-                        <div class="card-body">
+                    <div class="card stats-card text-center p-4">                        <div class="card-body">
                             <i class="bi bi-star text-warning" style="font-size: 3rem;"></i>
-                            <h3 class="mt-3 mb-1">{{ rand(100, 500) }}</h3>
+                            <h3 class="mt-3 mb-1">{{ $stats['total_reviews'] }}</h3>
                             <p class="text-muted mb-0">Reviews</p>
                         </div>
                     </div>
@@ -132,27 +127,34 @@
     </section>
 
     <!-- Quick Actions -->
-    <section class="py-5 bg-light">
-        <div class="container">
+    <section class="py-5 bg-light">        <div class="container">
             <h2 class="text-center mb-5">Quick Actions</h2>
+            
             <div class="row g-4">
+                @if(Auth::user()->isAdmin())
                 <div class="col-lg-4">
                     <div class="card h-100">
                         <div class="card-body text-center p-4">
-                            <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>
-                            <h4 class="mt-3">Add New Game</h4>
+                            <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>                            <h4 class="mt-3">Add New Game</h4>
                             <p class="text-muted">Create a new game entry in your database</p>
-                            <button class="btn btn-primary">Add Game</button>
+                            <a href="{{ route('games.manage') }}" class="btn btn-primary">Manage Games</a>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
+                @endif                <div class="col-lg-4">
                     <div class="card h-100">
                         <div class="card-body text-center p-4">
-                            <i class="bi bi-search text-success" style="font-size: 3rem;"></i>
-                            <h4 class="mt-3">Search Games</h4>
+                            <i class="bi bi-search text-success" style="font-size: 3rem;"></i>                            <h4 class="mt-3">Search Games</h4>
                             <p class="text-muted">Find games by title, genre, or developer</p>
-                            <button class="btn btn-success">Search</button>
+                            <a href="{{ route('games.search') }}" class="btn btn-success">Search Games</a>
+                        </div>
+                    </div>                </div>                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-star-fill text-warning" style="font-size: 3rem;"></i>
+                            <h4 class="mt-3">Game Reviews</h4>
+                            <p class="text-muted">Read and write reviews for your favorite games</p>
+                            <a href="{{ route('reviews.index') }}" class="btn btn-warning">View Reviews</a>
                         </div>
                     </div>
                 </div>
@@ -211,9 +213,7 @@
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Bootstrap JS -->
+    </section>    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -37,19 +37,13 @@ class Game extends Model
         return $this->belongsToMany(Developer::class, 'developer_game')
                     ->withPivot('role')
                     ->withTimestamps();
-    }
-
-    public function platforms(): BelongsToMany
+    }    public function platforms(): BelongsToMany
     {
         return $this->belongsToMany(Platform::class, 'game_platform')
-                    ->withPivot('release_date')
-                    ->withTimestamps();
-    }
-
-    public function genres(): BelongsToMany
+                    ->withPivot('release_date');
+    }public function genres(): BelongsToMany
     {
-        return $this->belongsToMany(Genre::class, 'game_genre')
-                    ->withTimestamps();
+        return $this->belongsToMany(Genre::class, 'game_genre');
     }
 
     public function reviews(): HasMany

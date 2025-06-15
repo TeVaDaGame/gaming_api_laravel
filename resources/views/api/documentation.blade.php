@@ -30,14 +30,10 @@
         pre { background-color: #2d3748; border-radius: 8px; }
     </style>
 </head>
-<body>
-    <!-- Navigation -->
+<body>    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/"><i class="bi bi-controller"></i> Gaming API</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/">← Back to Dashboard</a>
-            </div>
+            <a class="navbar-brand" href="{{ route('dashboard') }}"><i class="bi bi-controller"></i> Gaming API</a>
         </div>
     </nav>
 
@@ -69,13 +65,18 @@
                         </li>
                     </ul>
                 </div>
-            </nav>
-
-            <!-- Main Content -->
+            </nav>            <!-- Main Content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="py-4">
-                    <h1 class="display-4 fw-bold mb-4">Gaming API Documentation</h1>
-                    <p class="lead">Complete reference for all available endpoints and their usage.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h1 class="display-4 fw-bold mb-2">Gaming API Documentation</h1>
+                            <p class="lead mb-0">Complete reference for all available endpoints and their usage.</p>
+                        </div>
+                        <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
 
                     <!-- Base URL -->
                     <div class="alert alert-info">

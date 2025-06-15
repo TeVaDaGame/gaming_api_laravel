@@ -11,11 +11,8 @@ class Genre extends Model
         'name',
         'slug',
         'description'
-    ];
-
-    public function games(): BelongsToMany
+    ];    public function games(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'game_genre')
-                    ->withTimestamps();
+        return $this->belongsToMany(Game::class, 'game_genre');
     }
 }

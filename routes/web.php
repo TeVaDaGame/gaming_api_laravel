@@ -18,6 +18,33 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Protected Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit', [AuthController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/settings', [AuthController::class, 'settings'])->name('settings');
+    Route::put('/settings', [AuthController::class, 'updateSettings'])->name('settings.update');
+    
+    // Review routes (all authenticated users)
+    Route::get('/reviews', [App\Http\Controllers\ReviewController::class, 'reviewsIndex'])->name('reviews.index');
+    Route::get('/reviews/create', [App\Http\Controllers\ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'storeWeb'])->name('reviews.store');
+    Route::get('/reviews/{review}/edit', [App\Http\Controllers\ReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{review}', [App\Http\Controllers\ReviewController::class, 'updateWeb'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [App\Http\Controllers\ReviewController::class, 'destroyWeb'])->name('reviews.destroy');
+    
+    // Admin only routes
+    Route::middleware('admin')->group(function () {
+        Route::get('/games/manage', [App\Http\Controllers\GameController::class, 'manage'])->name('games.manage');
+        Route::get('/games/create', [App\Http\Controllers\GameController::class, 'create'])->name('games.create');
+        Route::post('/games', [App\Http\Controllers\GameController::class, 'storeWeb'])->name('games.store');
+        Route::get('/games/{game}/edit', [App\Http\Controllers\GameController::class, 'edit'])->name('games.edit');
+        Route::put('/games/{game}', [App\Http\Controllers\GameController::class, 'updateWeb'])->name('games.update');
+        Route::delete('/games/{game}', [App\Http\Controllers\GameController::class, 'destroyWeb'])->name('games.destroy');
+    });
+    
+    // All authenticated users can search
+    Route::get('/games/search', [App\Http\Controllers\GameController::class, 'searchPage'])->name('games.search');
+    Route::get('/games/{game}', [App\Http\Controllers\GameController::class, 'show'])->name('games.show');
 });
 
 // API Documentation route
