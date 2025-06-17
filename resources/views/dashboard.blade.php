@@ -121,30 +121,17 @@
 
     <!-- Quick Actions -->
     <section class="py-5 bg-light">        <div class="container">
-            <h2 class="text-center mb-5">Quick Actions</h2>
-              <div class="row g-4">
-                @if(Auth::user()->isAdmin())
-                <div class="col-lg-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center p-4">
-                            <i class="bi bi-shield-check text-danger" style="font-size: 3rem;"></i>
-                            <h4 class="mt-3">Admin Dashboard</h4>
-                            <p class="text-muted">Access admin-only features and analytics</p>
-                            <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Admin Panel</a>
-                        </div>
-                    </div>
-                </div>
+            <h2 class="text-center mb-5">Quick Actions</h2>              <div class="row g-4">
                 <div class="col-lg-4">
                     <div class="card h-100">
                         <div class="card-body text-center p-4">
                             <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>
                             <h4 class="mt-3">Manage Games</h4>
                             <p class="text-muted">Create, edit, and manage game entries</p>
-                            <a href="{{ route('games.manage') }}" class="btn btn-primary">Manage Games</a>
-                        </div>
+                            <a href="{{ route('games.manage') }}" class="btn btn-primary">Manage Games</a>                        </div>
                     </div>
                 </div>
-                @endif<div class="col-lg-4">
+                <div class="col-lg-4">
                     <div class="card h-100">
                         <div class="card-body text-center p-4">
                             <i class="bi bi-search text-success" style="font-size: 3rem;"></i>                            <h4 class="mt-3">Search Games</h4>

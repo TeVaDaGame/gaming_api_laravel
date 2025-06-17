@@ -176,7 +176,8 @@ class SampleDataSeeder extends Seeder
             }
         }
 
-        // Create users if they don't exist
+        // Create users if they don't exist (admin user creation disabled)
+        /*
         if (!User::where('email', 'admin@gaming-api.com')->exists()) {
             User::create([
                 'name' => 'Admin User',
@@ -185,6 +186,7 @@ class SampleDataSeeder extends Seeder
                 'role' => 'admin',
             ]);
         }
+        */
         
         if (!User::where('email', 'user@gaming-api.com')->exists()) {
             User::create([

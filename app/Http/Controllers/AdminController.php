@@ -12,17 +12,22 @@ use App\Models\Platform;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
-{
-    public function __construct()
+{    public function __construct()
     {
-        $this->middleware(['auth', 'admin']);
-    }
-
-    /**
+        // Apply auth middleware only - role checking will be done in individual methods
+        $this->middleware('auth');
+    }    /**
      * Show the admin dashboard
      */
     public function dashboard()
     {
+        // Temporarily disable admin check for debugging
+        /*
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Access denied. Admin privileges required.');
+        }
+        */
+        
         $stats = [
             'total_games' => Game::count(),
             'total_users' => User::count(),

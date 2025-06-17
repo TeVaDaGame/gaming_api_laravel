@@ -10,9 +10,12 @@ class AdminUserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     */
-    public function run(): void
+     */    public function run(): void
     {
+        // Admin user creation disabled per request
+        $this->command->info('Admin user seeder skipped - admin user creation disabled.');
+        
+        /*
         // Create admin user if it doesn't exist
         $adminEmail = 'admin@gaming-api.com';
         
@@ -31,5 +34,6 @@ class AdminUserSeeder extends Seeder
         } else {
             $this->command->info('Admin user already exists.');
         }
+        */
     }
 }
