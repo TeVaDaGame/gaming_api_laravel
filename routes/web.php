@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 // Welcome route
 Route::get('/', function () {
@@ -14,6 +15,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Test route to check if admin middleware works
+Route::get('/admin-test', function () {
+    return 'Admin middleware is working!';
+})->middleware(['auth', 'admin']);
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
@@ -34,12 +40,22 @@ Route::middleware('auth')->group(function () {
     
     // Admin only routes
     Route::middleware('admin')->group(function () {
+        // Admin dashboard
+        Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+        
+        // User management
+        Route::get('/admin/users', [App\Http\Controllers\AdminController::class, 'users'])->name('admin.users');
+        Route::put('/admin/users/{user}/role', [App\Http\Controllers\AdminController::class, 'updateUserRole'])->name('admin.users.update-role');
+        Route::delete('/admin/users/{user}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('admin.users.delete');
+        
+        // Game management
         Route::get('/games/manage', [App\Http\Controllers\GameController::class, 'manage'])->name('games.manage');
         Route::get('/games/create', [App\Http\Controllers\GameController::class, 'create'])->name('games.create');
         Route::post('/games', [App\Http\Controllers\GameController::class, 'storeWeb'])->name('games.store');
         Route::get('/games/{game}/edit', [App\Http\Controllers\GameController::class, 'edit'])->name('games.edit');
         Route::put('/games/{game}', [App\Http\Controllers\GameController::class, 'updateWeb'])->name('games.update');
         Route::delete('/games/{game}', [App\Http\Controllers\GameController::class, 'destroyWeb'])->name('games.destroy');
+        Route::delete('/games/bulk-delete', [App\Http\Controllers\GameController::class, 'bulkDelete'])->name('games.bulk-delete');
     });
     
     // All authenticated users can search

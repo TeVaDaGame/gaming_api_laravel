@@ -146,12 +146,42 @@ class GameController extends Controller
     }
 
     // Web methods for game management interface
-    public function manage()
+    public function manage(Request $request)
     {
-        $games = Game::with(['publisher', 'developers', 'genres', 'platforms'])
-                    ->paginate(10);
+        $query = Game::with(['publisher', 'developers', 'genres', 'platforms']);
         
-        return view('games.manage', compact('games'));
+        // Apply search filters
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        if ($request->filled('publisher')) {
+            $query->where('publisher_id', $request->publisher);
+        }
+        
+        if ($request->filled('genre')) {
+            $query->whereHas('genres', function($q) use ($request) {
+                $q->where('genres.id', $request->genre);
+            });
+        }
+        
+        if ($request->filled('status')) {
+            $status = $request->status === 'active' ? 1 : 0;
+            $query->where('is_active', $status);
+        }
+        
+        // Order by title and get all games without pagination
+        $games = $query->orderBy('title', 'asc')->get();
+        
+        // Get filter options
+        $publishers = Publisher::orderBy('name')->get();
+        $genres = Genre::orderBy('name')->get();
+        
+        return view('games.manage', compact('games', 'publishers', 'genres'));
     }
 
     public function create()
@@ -260,6 +290,19 @@ class GameController extends Controller
         return redirect()->route('games.manage')->with('success', 'Game deleted successfully!');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'selected_games' => 'required|array|min:1',
+            'selected_games.*' => 'exists:games,id'
+        ]);
+
+        $count = Game::whereIn('id', $request->selected_games)->count();
+        Game::whereIn('id', $request->selected_games)->delete();
+
+        return redirect()->route('games.manage')->with('success', "{$count} games deleted successfully!");
+    }
+
     // Method for dashboard statistics
     public function getStats()
     {
@@ -276,7 +319,7 @@ class GameController extends Controller
         $query = $request->get('q');
         $genre = $request->get('genre');
         $publisher = $request->get('publisher');
-        $minRating = $request->get('min_rating');
+        $ratingSort = $request->get('rating_sort');
         $maxPrice = $request->get('max_price');
         
         $games = Game::with(['publisher', 'developers', 'genres', 'platforms']);
@@ -299,10 +342,6 @@ class GameController extends Controller
             $games->where('publisher_id', $publisher);
         }
         
-        if ($minRating) {
-            $games->where('rating', '>=', $minRating);
-        }
-        
         if ($maxPrice) {
             $games->where('price', '<=', $maxPrice);
         }
@@ -310,14 +349,26 @@ class GameController extends Controller
         // Only get active games for search
         $games->where('is_active', true);
         
-        // Get results with pagination
-        $results = $games->paginate(12)->appends($request->query());
+        // Apply rating sort
+        if ($ratingSort) {
+            if ($ratingSort === 'high_to_low') {
+                $games->orderBy('rating', 'desc');
+            } elseif ($ratingSort === 'low_to_high') {
+                $games->orderBy('rating', 'asc');
+            }
+        } else {
+            // Default order - by title
+            $games->orderBy('title', 'asc');
+        }
+        
+        // Get all results without pagination
+        $results = $games->get();
         
         // Get filter options
         $genres = Genre::orderBy('name')->get();
         $publishers = Publisher::orderBy('name')->get();
         
-        return view('games.search', compact('results', 'genres', 'publishers', 'query', 'genre', 'publisher', 'minRating', 'maxPrice'));
+        return view('games.search', compact('results', 'genres', 'publishers', 'query', 'genre', 'publisher', 'ratingSort', 'maxPrice'));
     }
 }
 

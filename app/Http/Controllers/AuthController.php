@@ -70,7 +70,10 @@ class AuthController extends Controller
         $gameController = new \App\Http\Controllers\GameController();
         $stats = $gameController->getStats();
         
-        return view('dashboard', compact('stats'));
+        // Get recent games for activity feed (show more since we're only showing games)
+        $recentGames = \App\Models\Game::orderBy('created_at', 'desc')->take(10)->get();
+        
+        return view('dashboard', compact('stats', 'recentGames'));
     }
 
     public function profile()

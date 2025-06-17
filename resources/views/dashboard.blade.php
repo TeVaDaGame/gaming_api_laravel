@@ -29,8 +29,7 @@
         }
     </style>
 </head>
-<body>
-    <!-- Navigation -->
+<body>    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="/dashboard"><i class="bi bi-controller"></i> Gaming API</a>
@@ -38,18 +37,12 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/dashboard">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/docs">API Documentation</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">                    <li class="nav-item dropdown">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-1"></i>{{ Auth::user()->name }}
-                        </a>                        <ul class="dropdown-menu">
+                        </a>
+                        <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
                             <li><a class="dropdown-item" href="{{ route('settings') }}"><i class="bi bi-gear me-2"></i>Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -129,19 +122,29 @@
     <!-- Quick Actions -->
     <section class="py-5 bg-light">        <div class="container">
             <h2 class="text-center mb-5">Quick Actions</h2>
-            
-            <div class="row g-4">
+              <div class="row g-4">
                 @if(Auth::user()->isAdmin())
                 <div class="col-lg-4">
                     <div class="card h-100">
                         <div class="card-body text-center p-4">
-                            <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>                            <h4 class="mt-3">Add New Game</h4>
-                            <p class="text-muted">Create a new game entry in your database</p>
+                            <i class="bi bi-shield-check text-danger" style="font-size: 3rem;"></i>
+                            <h4 class="mt-3">Admin Dashboard</h4>
+                            <p class="text-muted">Access admin-only features and analytics</p>
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-danger">Admin Panel</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-plus-circle text-primary" style="font-size: 3rem;"></i>
+                            <h4 class="mt-3">Manage Games</h4>
+                            <p class="text-muted">Create, edit, and manage game entries</p>
                             <a href="{{ route('games.manage') }}" class="btn btn-primary">Manage Games</a>
                         </div>
                     </div>
                 </div>
-                @endif                <div class="col-lg-4">
+                @endif<div class="col-lg-4">
                     <div class="card h-100">
                         <div class="card-body text-center p-4">
                             <i class="bi bi-search text-success" style="font-size: 3rem;"></i>                            <h4 class="mt-3">Search Games</h4>
@@ -179,34 +182,22 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-hover">                            <thead>
                                 <tr>
                                     <th>Action</th>
-                                    <th>Resource</th>
+                                    <th>Game</th>
                                     <th>Time</th>
                                     <th>Status</th>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            </thead>                            <tbody>
+                                @foreach($recentGames as $game)
                                 <tr>
-                                    <td><i class="bi bi-plus-circle text-success me-2"></i>Created</td>
-                                    <td>Game: "Cyberpunk 2077"</td>
-                                    <td>{{ now()->subMinutes(5)->diffForHumans() }}</td>
+                                    <td><i class="bi bi-plus-circle text-success me-2"></i>Added</td>
+                                    <td>"{{ $game->title }}"</td>
+                                    <td>{{ $game->created_at->diffForHumans() }}</td>
                                     <td><span class="badge bg-success">Success</span></td>
                                 </tr>
-                                <tr>
-                                    <td><i class="bi bi-pencil text-warning me-2"></i>Updated</td>
-                                    <td>Developer: "CD Projekt RED"</td>
-                                    <td>{{ now()->subMinutes(15)->diffForHumans() }}</td>
-                                    <td><span class="badge bg-success">Success</span></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="bi bi-eye text-info me-2"></i>Viewed</td>
-                                    <td>Genre: "Action RPG"</td>
-                                    <td>{{ now()->subMinutes(30)->diffForHumans() }}</td>
-                                    <td><span class="badge bg-info">Info</span></td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
