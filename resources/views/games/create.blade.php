@@ -51,6 +51,34 @@
                             @enderror
                         </div>
 
+                        <!-- Image Fields -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="image_url" class="form-label">Cover Image URL</label>
+                                    <input type="url" class="form-control @error('image_url') is-invalid @enderror" 
+                                           id="image_url" name="image_url" value="{{ old('image_url') }}"
+                                           placeholder="https://example.com/game-cover.jpg">
+                                    <div class="form-text">Primary cover image for the game</div>
+                                    @error('image_url')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cover_image" class="form-label">Alternative Cover URL</label>
+                                    <input type="url" class="form-control @error('cover_image') is-invalid @enderror" 
+                                           id="cover_image" name="cover_image" value="{{ old('cover_image') }}"
+                                           placeholder="https://example.com/alt-cover.jpg">
+                                    <div class="form-text">Alternative or backup cover image</div>
+                                    @error('cover_image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">

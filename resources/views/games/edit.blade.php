@@ -52,6 +52,57 @@
                             @enderror
                         </div>
 
+                        <!-- Image Fields -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="image_url" class="form-label">Cover Image URL</label>
+                                    <input type="url" class="form-control @error('image_url') is-invalid @enderror" 
+                                           id="image_url" name="image_url" value="{{ old('image_url', $game->image_url) }}"
+                                           placeholder="https://example.com/game-cover.jpg">
+                                    <div class="form-text">Primary cover image for the game</div>
+                                    @error('image_url')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cover_image" class="form-label">Alternative Cover URL</label>
+                                    <input type="url" class="form-control @error('cover_image') is-invalid @enderror" 
+                                           id="cover_image" name="cover_image" value="{{ old('cover_image', $game->cover_image) }}"
+                                           placeholder="https://example.com/alt-cover.jpg">
+                                    <div class="form-text">Alternative or backup cover image</div>
+                                    @error('cover_image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Image Preview -->
+                        @if($game->image_url || $game->cover_image)
+                        <div class="mb-3">
+                            <label class="form-label">Current Images</label>
+                            <div class="d-flex gap-3">
+                                @if($game->image_url)
+                                    <div>
+                                        <small class="text-muted d-block">Primary Cover</small>
+                                        <img src="{{ $game->image_url }}" alt="Current cover" 
+                                             class="img-thumbnail" style="width: 100px; height: 140px; object-fit: cover;">
+                                    </div>
+                                @endif
+                                @if($game->cover_image)
+                                    <div>
+                                        <small class="text-muted d-block">Alternative Cover</small>
+                                        <img src="{{ $game->cover_image }}" alt="Alternative cover" 
+                                             class="img-thumbnail" style="width: 100px; height: 140px; object-fit: cover;">
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">

@@ -99,12 +99,12 @@
                 <div class="card-body p-0">
                     <form id="bulkForm" method="POST" action="{{ route('games.bulk-delete') }}">
                         @csrf
-                        @method('DELETE')                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                        @method('DELETE')                        <table class="table table-hover mb-0">                            <thead class="table-light">
                                 <tr>
                                     <th width="40">
                                         <input type="checkbox" id="selectAll" class="form-check-input">
                                     </th>
+                                    <th width="80">Cover</th>
                                     <th>Title</th>
                                     <th>Publisher</th>
                                     <th>Developers</th>
@@ -115,12 +115,18 @@
                                     <th width="150">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @forelse($games as $game)
+                            <tbody>                                @forelse($games as $game)
                                 <tr>
                                     <td>
                                         <input type="checkbox" name="selected_games[]" value="{{ $game->id }}" 
                                                class="form-check-input game-checkbox" onchange="updateBulkActions()">
+                                    </td>
+                                    <td>
+                                        <img src="{{ $game->image }}" 
+                                             alt="{{ $game->title }}" 
+                                             class="img-thumbnail"
+                                             style="width: 60px; height: 80px; object-fit: cover;"
+                                             onerror="this.src='{{ $game->getPlaceholderImage() }}'">
                                     </td>
                                     <td>
                                         <div class="fw-semibold">{{ $game->title }}</div>

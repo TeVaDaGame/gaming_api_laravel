@@ -4,6 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 
+// System status page
+Route::get('/status', function () {
+    return view('status');
+})->name('status');
+
 // Welcome route
 Route::get('/', function () {
     return view('index');
@@ -29,6 +34,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
     Route::get('/settings', [AuthController::class, 'settings'])->name('settings');
     Route::put('/settings', [AuthController::class, 'updateSettings'])->name('settings.update');
+    
+    // Favorites and Wishlist routes
+    Route::get('/favorites', [App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites', [App\Http\Controllers\FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{game}', [App\Http\Controllers\FavoriteController::class, 'destroy'])->name('favorites.destroy');
+    Route::put('/favorites/{favorite}', [App\Http\Controllers\FavoriteController::class, 'update'])->name('favorites.update');
+    Route::get('/favorites/stats', [App\Http\Controllers\FavoriteController::class, 'stats'])->name('favorites.stats');
+    Route::get('/favorites/check/{game}', [App\Http\Controllers\FavoriteController::class, 'check'])->name('favorites.check');
     
     // Review routes (all authenticated users)
     Route::get('/reviews', [App\Http\Controllers\ReviewController::class, 'reviewsIndex'])->name('reviews.index');

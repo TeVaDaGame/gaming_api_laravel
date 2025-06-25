@@ -73,7 +73,20 @@ class AuthController extends Controller
         // Get recent games for activity feed (show more since we're only showing games)
         $recentGames = \App\Models\Game::orderBy('created_at', 'desc')->take(10)->get();
         
-        return view('dashboard', compact('stats', 'recentGames'));
+        // Get user's favorites stats
+        $user = auth()->user();
+        $favoriteStats = [
+            'total_favorites' => $user->userFavorites()->where('type', 'favorite')->count(),
+            'total_wishlist' => $user->userFavorites()->where('type', 'wishlist')->count(),
+            'recent_favorites' => $user->userFavorites()
+                ->with('game')
+                ->where('type', 'favorite')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get()
+        ];
+        
+        return view('dashboard', compact('stats', 'recentGames', 'favoriteStats'));
     }
 
     public function profile()

@@ -20,6 +20,8 @@ class GameController extends Controller
             'title' => 'required|string',
             'slug' => 'required|string|unique:games',
             'description' => 'required|string',
+            'image_url' => 'nullable|url|max:500',
+            'cover_image' => 'nullable|url|max:500',
             'release_date' => 'required|date',
             'publisher_id' => 'required|exists:publishers,id',
             'rating' => 'required|numeric|between:0,10',
@@ -29,7 +31,7 @@ class GameController extends Controller
         ]);
 
         $game = Game::create($request->only([
-            'title', 'slug', 'description', 'release_date',
+            'title', 'slug', 'description', 'image_url', 'cover_image', 'release_date',
             'publisher_id', 'rating', 'price', 'is_active'
         ]));
         
@@ -200,6 +202,8 @@ class GameController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'required|string|unique:games|max:255',
             'description' => 'required|string',
+            'image_url' => 'nullable|url|max:500',
+            'cover_image' => 'nullable|url|max:500',
             'release_date' => 'required|date',
             'publisher_id' => 'required|exists:publishers,id',
             'rating' => 'required|numeric|between:0,10',
@@ -214,7 +218,7 @@ class GameController extends Controller
         ]);
 
         $game = Game::create($request->only([
-            'title', 'slug', 'description', 'release_date',
+            'title', 'slug', 'description', 'image_url', 'cover_image', 'release_date',
             'publisher_id', 'rating', 'price', 'is_active'
         ]));
 
@@ -251,6 +255,8 @@ class GameController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:games,slug,' . $game->id,
             'description' => 'required|string',
+            'image_url' => 'nullable|url|max:500',
+            'cover_image' => 'nullable|url|max:500',
             'release_date' => 'required|date',
             'publisher_id' => 'required|exists:publishers,id',
             'rating' => 'required|numeric|between:0,10',
@@ -265,7 +271,7 @@ class GameController extends Controller
         ]);
 
         $game->update($request->only([
-            'title', 'slug', 'description', 'release_date',
+            'title', 'slug', 'description', 'image_url', 'cover_image', 'release_date',
             'publisher_id', 'rating', 'price', 'is_active'
         ]));
 

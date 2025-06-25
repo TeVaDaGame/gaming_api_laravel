@@ -35,15 +35,19 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="col-12">            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0">
                     <i class="bi bi-search me-2"></i>
                     Search Games
                 </h1>
-                <a href="{{ route('dashboard') }}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('favorites.index') }}" class="btn btn-outline-danger">
+                        <i class="bi bi-heart me-2"></i>My Favorites
+                    </a>
+                    <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
             </div>
 
             <!-- Search Form -->
@@ -145,10 +149,34 @@
                     @endif
                 </div>
                 <div class="card-body">                    @if($results->count() > 0)
-                        <div class="row g-3">
-                            @foreach($results as $game)
+                        <div class="row g-3">                            @foreach($results as $game)
                             <div class="col-xl-4 col-lg-6 col-md-6 col-12">
                                 <div class="card h-100 game-card shadow-sm">
+                                    <!-- Game Cover Image -->
+                                    <div class="position-relative">
+                                        <img src="{{ $game->image }}" 
+                                             alt="{{ $game->title }}" 
+                                             class="card-img-top"
+                                             style="height: 200px; object-fit: cover;"
+                                             onerror="this.src='{{ $game->getPlaceholderImage() }}'">
+                                        
+                                        <!-- Rating Badge -->
+                                        @if($game->rating)
+                                            <div class="position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-dark bg-opacity-75">
+                                                    <i class="bi bi-star-fill text-warning me-1"></i>{{ $game->rating }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                        
+                                        <!-- Price Badge -->
+                                        @if($game->price)
+                                            <div class="position-absolute bottom-0 start-0 m-2">
+                                                <span class="badge bg-success">${{ number_format($game->price, 2) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title mb-2">{{ $game->title }}</h5>
                                         <p class="card-text text-muted mb-3 flex-grow-1">{{ Str::limit($game->description, 80) }}</p>
@@ -188,22 +216,36 @@
                                             @endforeach
                                             @if($game->platforms->count() > 3)
                                                 <small class="text-muted">+{{ $game->platforms->count() - 3 }} more</small>
-                                            @endif
-                                        </div>
+                                            @endif                                        </div>
                                         @endif
                                         
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <div class="d-flex flex-wrap align-items-center gap-2">
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="bi bi-star-fill me-1"></i>{{ number_format($game->rating, 1) }}
-                                                </span>
-                                                <span class="text-success fw-bold fs-6">${{ number_format($game->price, 2) }}</span>
-                                            </div>
-                                            <small class="text-muted">{{ $game->release_date->format('M Y') }}</small>
+                                            <small class="text-muted">Released: {{ $game->release_date->format('M Y') }}</small>
                                         </div>
-                                        
-                                        <!-- Action Button -->
+                                          <!-- Action Buttons -->
                                         <div class="mt-auto">
+                                            <div class="d-flex gap-2 mb-2">
+                                                <!-- Favorite Button -->
+                                                <form method="POST" action="{{ route('favorites.store') }}" class="flex-fill">
+                                                    @csrf
+                                                    <input type="hidden" name="game_id" value="{{ $game->id }}">
+                                                    <input type="hidden" name="type" value="favorite">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100" 
+                                                            {{ $game->isFavoritedBy() ? 'disabled' : '' }}>
+                                                        <i class="bi bi-heart{{ $game->isFavoritedBy() ? '-fill' : '' }}"></i>
+                                                    </button>
+                                                </form>
+                                                <!-- Wishlist Button -->
+                                                <form method="POST" action="{{ route('favorites.store') }}" class="flex-fill">
+                                                    @csrf
+                                                    <input type="hidden" name="game_id" value="{{ $game->id }}">
+                                                    <input type="hidden" name="type" value="wishlist">
+                                                    <button type="submit" class="btn btn-outline-info btn-sm w-100"
+                                                            {{ $game->isWishlistedBy() ? 'disabled' : '' }}>
+                                                        <i class="bi bi-bookmark{{ $game->isWishlistedBy() ? '-fill' : '' }}"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                             <div class="d-grid">
                                                 <a href="{{ route('games.show', $game) }}" class="btn btn-outline-primary">
                                                     <i class="bi bi-eye me-1"></i>View Details

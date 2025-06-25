@@ -120,4 +120,67 @@ class User extends Authenticatable
         $settings = array_merge($this->settings ?? [], $newSettings);
         $this->update(['settings' => $settings]);
     }
+
+    /**
+     * Get user's favorite games
+     */
+    public function favorites()
+    {
+        return $this->belongsToMany(Game::class, 'user_favorites')
+                    ->wherePivot('type', 'favorite')
+                    ->withPivot(['notes', 'created_at'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get user's wishlist games
+     */
+    public function wishlist()
+    {
+        return $this->belongsToMany(Game::class, 'user_favorites')
+                    ->wherePivot('type', 'wishlist')
+                    ->withPivot(['notes', 'created_at'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get all user favorites (both favorites and wishlist)
+     */
+    public function userFavorites()
+    {
+        return $this->hasMany(UserFavorite::class);
+    }
+
+    /**
+     * Check if user has favorited a game
+     */
+    public function hasFavorited($gameId, $type = 'favorite')
+    {
+        return $this->userFavorites()
+                    ->where('game_id', $gameId)
+                    ->where('type', $type)
+                    ->exists();
+    }
+
+    /**
+     * Add game to favorites or wishlist
+     */
+    public function addToFavorites($gameId, $type = 'favorite', $notes = null)
+    {
+        return $this->userFavorites()->updateOrCreate(
+            ['game_id' => $gameId, 'type' => $type],
+            ['notes' => $notes]
+        );
+    }
+
+    /**
+     * Remove game from favorites or wishlist
+     */
+    public function removeFromFavorites($gameId, $type = 'favorite')
+    {
+        return $this->userFavorites()
+                    ->where('game_id', $gameId)
+                    ->where('type', $type)
+                    ->delete();
+    }
 }

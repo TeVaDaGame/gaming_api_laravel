@@ -8,10 +8,12 @@ A comprehensive RESTful API built with Laravel for managing video game data incl
 - **Developer & Publisher Management**: Track game studios and publishing companies
 - **Genre & Platform Support**: Organize games by categories and supported platforms
 - **User Reviews & Ratings**: Allow users to rate and review games
+- **User Favorites & Wishlist**: Save favorite games and create personal wishlists
 - **Search Functionality**: Search across games, developers, and publishers
 - **Popular & Latest Games**: Get trending and recently released games
 - **Authentication**: Secure API access using Laravel Sanctum
 - **Database Relationships**: Many-to-many relationships between games, developers, genres, and platforms
+- **Web Dashboard**: User-friendly web interface for managing games and favorites
 
 ## Table of Contents
 - [Setup](#setup)
@@ -23,6 +25,8 @@ A comprehensive RESTful API built with Laravel for managing video game data incl
   - [Genres](#genres)
   - [Platforms](#platforms)
   - [Reviews](#reviews)
+  - [Favorites](#favorites)
+- [Web Interface](#web-interface)
 - [Thunder Client Testing](#thunder-client-testing)
 - [Database Schema](#database-schema)
 - [License](#license)
@@ -1097,6 +1101,255 @@ Response:
     "message": "Review deleted"
 }
 ```
+
+### Favorites
+
+Manage user favorites and wishlist functionality.
+
+#### List user's favorites
+```http
+GET /api/favorites?type=favorite
+Authorization: Bearer {token}
+
+Query Parameters:
+- type: "favorite" or "wishlist" (default: "favorite")
+
+Response:
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 1,
+            "game_id": 1,
+            "type": "favorite",
+            "notes": "Amazing game! Can't wait to play it again.",
+            "created_at": "2024-01-01T00:00:00.000000Z",
+            "game": {
+                "id": 1,
+                "title": "Battlefield 2042",
+                "rating": 8.5,
+                "publisher": {
+                    "name": "Electronic Arts"
+                },
+                "genres": [
+                    {"name": "Action"},
+                    {"name": "Shooter"}
+                ]
+            }
+        }
+    ],
+    "type": "favorite",
+    "count": 1
+}
+```
+
+#### Add game to favorites/wishlist
+```http
+POST /api/favorites
+Authorization: Bearer {token}
+Content-Type: application/json
+
+Request:
+{
+    "game_id": 1,
+    "type": "favorite",
+    "notes": "One of my all-time favorites!"
+}
+
+Response:
+{
+    "success": true,
+    "message": "'Battlefield 2042' added to favorite list",
+    "data": {
+        "id": 1,
+        "user_id": 1,
+        "game_id": 1,
+        "type": "favorite",
+        "notes": "One of my all-time favorites!",
+        "created_at": "2024-01-01T00:00:00.000000Z",
+        "game": {
+            "id": 1,
+            "title": "Battlefield 2042"
+        }
+    }
+}
+```
+
+#### Remove game from favorites/wishlist
+```http
+DELETE /api/favorites/{game_id}?type=favorite
+Authorization: Bearer {token}
+
+Query Parameters:
+- type: "favorite" or "wishlist" (default: "favorite")
+
+Response:
+{
+    "success": true,
+    "message": "'Battlefield 2042' removed from favorite list"
+}
+```
+
+#### Update favorite notes
+```http
+PUT /api/favorites/{favorite_id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+Request:
+{
+    "notes": "Updated notes about this game"
+}
+
+Response:
+{
+    "success": true,
+    "message": "Notes updated successfully",
+    "data": {
+        "id": 1,
+        "notes": "Updated notes about this game",
+        "updated_at": "2024-01-01T00:00:00.000000Z",
+        "game": {
+            "id": 1,
+            "title": "Battlefield 2042"
+        }
+    }
+}
+```
+
+#### Get favorites statistics
+```http
+GET /api/favorites/stats
+Authorization: Bearer {token}
+
+Response:
+{
+    "success": true,
+    "data": {
+        "total_favorites": 5,
+        "total_wishlist": 3,
+        "total_combined": 8,
+        "recent_additions": [
+            {
+                "id": 1,
+                "type": "favorite",
+                "created_at": "2024-01-01T00:00:00.000000Z",
+                "game": {
+                    "id": 1,
+                    "title": "Battlefield 2042"
+                }
+            }
+        ],
+        "favorite_genres": {
+            "Action": 3,
+            "RPG": 2,
+            "Strategy": 1
+        }
+    }
+}
+```
+
+#### Check if game is favorited
+```http
+GET /api/favorites/check/{game_id}?type=favorite
+Authorization: Bearer {token}
+
+Query Parameters:
+- type: "favorite" or "wishlist" (default: "favorite")
+
+Response:
+{
+    "success": true,
+    "is_favorited": true,
+    "type": "favorite"
+}
+```
+
+## Web Interface
+
+The Gaming API includes a comprehensive web dashboard for managing games and user interactions through a browser interface.
+
+### Dashboard Features
+
+- **User Authentication**: Login/register system with secure session management
+- **Game Management**: Create, edit, and delete games through a user-friendly interface
+- **Search & Browse**: Advanced search with filters for genre, publisher, rating, and price
+- **Favorites & Wishlist**: Save favorite games and create personal wishlists
+- **Review System**: Write and manage game reviews with ratings
+- **Responsive Design**: Mobile-friendly interface using Bootstrap 5
+- **Real-time Stats**: Dashboard showing user statistics and recent activity
+
+### Key Pages
+
+#### Dashboard (`/dashboard`)
+- Overview of gaming statistics
+- Quick access to favorites, wishlist, and reviews
+- Recent activity feed
+- User-specific statistics
+
+#### Search Games (`/games/search`)
+- Advanced search with multiple filters
+- Grid/list view toggle
+- Add to favorites/wishlist directly from search results
+- Pagination and sorting options
+
+#### Favorites Management (`/favorites`)
+- View favorites and wishlist in separate tabs
+- Edit personal notes for each game
+- Remove games from lists
+- Grid/list view options
+
+#### Game Details (`/games/{game}`)
+- Detailed game information
+- Add to favorites/wishlist
+- View and write reviews
+- Related games suggestions
+
+### Authentication Routes
+
+- `GET /login` - Login form
+- `POST /login` - Process login
+- `GET /register` - Registration form
+- `POST /register` - Process registration
+- `POST /logout` - Logout user
+
+### Protected Routes (require authentication)
+
+- `GET /dashboard` - User dashboard
+- `GET /favorites` - Manage favorites and wishlist
+- `GET /games/search` - Search games
+- `GET /reviews` - Manage reviews
+- `GET /profile` - User profile management
+- `GET /settings` - User settings
+
+### Admin-Only Routes (require admin role)
+
+- `GET /games/manage` - Game management dashboard
+- `GET /games/create` - Create new games
+- `GET /games/{game}/edit` - Edit existing games
+- `GET /admin/dashboard` - Admin dashboard
+- `GET /admin/users` - User management
+
+### Access Control
+
+The Gaming API implements role-based access control with two user types:
+
+#### **Regular Users** can:
+- Browse and search games
+- View detailed game information
+- Add games to favorites and wishlist
+- Write and manage their own reviews
+- Rate games
+- Manage their profile and settings
+
+#### **Admin Users** can:
+- Everything regular users can do, PLUS:
+- Create, edit, and delete games
+- Manage developers, publishers, genres, and platforms
+- Access admin dashboard with system statistics
+- Manage user accounts and roles
+- Bulk operations on games
 
 ## Authentication & Security
 
